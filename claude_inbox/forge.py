@@ -64,6 +64,24 @@ def _now_iso() -> str:
         "%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
+def detect_git_branch(cwd: str | Path) -> str:
+    """Current git branch of cwd, or "" if not a git repo.
+
+    Claude Code records this on every turn; the desktop app groups the
+    session list by the cwd's GitHub repo, but only for sessions whose
+    transcript carries a non-empty gitBranch. Recording it is what lets a
+    dropped item land in a named repo group instead of "Other"."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(cwd), "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=10)
+        if out.returncode == 0:
+            return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return ""
+
+
 def forge_session(cwd: str | Path, title: str, body: str,
                   sender: str | None = None,
                   version: str | None = None) -> tuple[str, Path]:
@@ -88,7 +106,7 @@ def forge_session(cwd: str | Path, title: str, body: str,
 
     base = {"isSidechain": False, "userType": "external",
             "entrypoint": "cli", "cwd": str(cwd), "sessionId": sid,
-            "version": ver, "gitBranch": ""}
+            "version": ver, "gitBranch": detect_git_branch(cwd)}
     records = [
         {"type": "custom-title", "customTitle": title, "sessionId": sid},
         {**base, "parentUuid": None, "type": "user",
