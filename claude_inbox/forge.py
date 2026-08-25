@@ -24,15 +24,15 @@ import uuid as uuidlib
 from pathlib import Path
 
 # Marker embedded in the forged user turn. list/clean refuse to touch a
-# transcript that lacks it, so dropin can never delete a real session.
-MARKER = "[dropin]"
+# transcript that lacks it, so claude-inbox can never delete a real session.
+MARKER = "[claude-inbox]"
 
 # Used when `claude --version` can't be read. The transcript format has
 # been stable across 2.x; the version field is informational.
 FALLBACK_VERSION = "2.1.243"
 
-DATA_DIR = Path(os.environ.get("DROPIN_DATA_DIR", "")) if os.environ.get(
-    "DROPIN_DATA_DIR") else Path.home() / ".dropin"
+DATA_DIR = Path(os.environ.get("CLAUDE_INBOX_DATA_DIR", "")) if os.environ.get(
+    "CLAUDE_INBOX_DATA_DIR") else Path.home() / ".claude-inbox"
 INDEX = DATA_DIR / "index.jsonl"
 
 
@@ -96,7 +96,7 @@ def forge_session(cwd: str | Path, title: str, body: str,
          "uuid": u_user, "timestamp": ts, "permissionMode": "default",
          "promptSource": "user", "promptId": str(uuidlib.uuid4())},
         {**base, "parentUuid": u_user, "type": "assistant",
-         "message": {"id": "msg_dropin_" + u_asst[:8], "type": "message",
+         "message": {"id": "msg_cinbox_" + u_asst[:8], "type": "message",
                      "role": "assistant", "model": "claude-fable-5",
                      "content": [{"type": "text", "text": body}],
                      "stop_reason": "end_turn", "stop_sequence": None,
@@ -148,8 +148,8 @@ def index_write(entries: list[dict]) -> None:
             f.write(json.dumps(e) + "\n")
 
 
-def is_dropin_transcript(path: str | Path) -> bool:
-    """True only if the transcript carries the dropin MARKER in a user
+def is_inbox_transcript(path: str | Path) -> bool:
+    """True only if the transcript carries the claude-inbox MARKER in a user
     turn — the safety gate before any delete."""
     p = Path(path)
     if not p.exists():

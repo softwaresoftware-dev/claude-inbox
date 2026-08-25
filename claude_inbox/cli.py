@@ -1,9 +1,9 @@
-"""dropin CLI — drop / list / clean.
+"""claude-inbox CLI — drop / list / clean.
 
 drop   Deliver an inbox item: forge a named, resumable conversation into
        the local Claude Code / Claude Desktop session list.
-list   Show items dropin has delivered on this machine.
-clean  Remove delivered items (only transcripts dropin itself wrote).
+list   Show items claude-inbox has delivered on this machine.
+clean  Remove delivered items (only transcripts claude-inbox itself wrote).
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from . import forge
 
 
 def _default_cwd() -> str:
-    return os.environ.get("DROPIN_CWD", str(Path.home() / "inbox"))
+    return os.environ.get("CLAUDE_INBOX_CWD", str(Path.home() / "inbox"))
 
 
 def cmd_drop(args: argparse.Namespace) -> int:
@@ -102,13 +102,13 @@ def cmd_clean(args: argparse.Namespace) -> int:
             continue
         p = Path(e["path"])
         if p.exists():
-            if forge.is_dropin_transcript(p):
+            if forge.is_inbox_transcript(p):
                 p.unlink()
                 removed += 1
                 print(f"removed {e['sid'][:8]}  {e['title']}")
             else:
                 # never delete a transcript we can't prove we wrote
-                print(f"SKIPPED {e['sid'][:8]} — no dropin marker, left in place")
+                print(f"SKIPPED {e['sid'][:8]} — no claude-inbox marker, left in place")
                 keep.append(e)
         else:
             removed += 1  # already gone; drop from index
@@ -118,7 +118,7 @@ def cmd_clean(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(prog="dropin", description=__doc__,
+    p = argparse.ArgumentParser(prog="claude-inbox", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -130,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--sender", help="attribution shown in the delivery note")
     d.add_argument("--cwd", default=_default_cwd(),
                    help="project dir the conversation belongs to "
-                        "(default: ~/inbox, or $DROPIN_CWD)")
+                        "(default: ~/inbox, or $CLAUDE_INBOX_CWD)")
     d.set_defaults(fn=cmd_drop)
 
     l = sub.add_parser("list", help="list delivered items")
