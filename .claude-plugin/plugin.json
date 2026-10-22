@@ -2,7 +2,7 @@
   "name": "claude-inbox",
   "version": "0.1.0",
   "description": "An inbox for Claude Code and Claude Desktop: drop named, ready-to-resume conversations into the local session list — briefs, reports, handoffs — for near-zero tokens. The reader opens the conversation and just keeps talking.",
-  "author": { "name": "NOV LLC", "url": "https://github.com/softwaresoftware-dev" },
+  "author": { "name": "GRAV LLC", "url": "https://github.com/softwaresoftware-dev" },
   "repository": "https://github.com/softwaresoftware-dev/claude-inbox",
   "license": "MIT",
   "keywords": ["inbox", "sessions", "handoff", "notifications", "briefs", "claude-desktop", "agent"]
